@@ -222,58 +222,61 @@
         }
     }
 
-    // Media Session pentru control nativ Android
-    function updateMediaSession(s) {
-        if ('mediaSession' in navigator) {
-            navigator.mediaSession.metadata = new MediaMetadata({
-                title: s.name,
-                artist: 'Radio Piatra Neamț',
-                artwork: [{ src: s.logo, sizes: '512x512', type: 'image/png' }]
-            });
-            navigator.mediaSession.setActionHandler('play', () => { currentAudio.play(); masterPlay.className="fas fa-pause-circle play-btn"; });
-            navigator.mediaSession.setActionHandler('pause', () => { currentAudio.pause(); masterPlay.className="fas fa-play-circle play-btn"; });
-            navigator.mediaSession.setActionHandler('previoustrack', () => document.getElementById('prevBtn').click());
-            navigator.mediaSession.setActionHandler('nexttrack', () => document.getElementById('nextBtn').click());
-        }
+    
+   // 1. Modificăm funcția să accepte titlu și artist dinamic
+function updateMediaSession(s, songTitle = null) {
+    if ('mediaSession' in navigator) {
+        navigator.mediaSession.metadata = new MediaMetadata({
+            // Dacă avem melodie, o punem ca titlu. Dacă nu, punem numele postului.
+            title: songTitle ? songTitle : s.name,
+            artist: songTitle ? s.name : 'Radio Piatra Neamț',
+            artwork: [{ src: s.logo, sizes: '512x512', type: 'image/png' }]
+        });
+        
+        navigator.mediaSession.setActionHandler('play', () => { currentAudio.play(); masterPlay.className="fas fa-pause-circle play-btn"; });
+        navigator.mediaSession.setActionHandler('pause', () => { currentAudio.pause(); masterPlay.className="fas fa-play-circle play-btn"; });
+        navigator.mediaSession.setActionHandler('previoustrack', () => document.getElementById('prevBtn').click());
+        navigator.mediaSession.setActionHandler('nexttrack', () => document.getElementById('nextBtn').click());
     }
+}
 
-    async function fetchMetadata(url) {
+// 2. Actualizăm metadata să trimită datele și către Widget-ul Android
+async function fetchMetadata(url) {
+    const s = stations[currentIndex];
     try {
-        // Logica pentru Kiss FM, Magic FM, Rock FM
+        let displayTitle = "";
+
         if(url.includes("kissfm.ro") || url.includes("magicfm.ro") || url.includes("rockfm.ro")) {
-            // Folosim proxy-ul pentru a evita blocajele de securitate CORS pe mobil
             const proxyUrl = 'https://api.allorigins.win/get?url=';
             const targetUrl = encodeURIComponent('https://www.kissfm.ro/api/nowplaying');
-            
             const response = await fetch(proxyUrl + targetUrl);
             const data = await response.json();
             const songData = JSON.parse(data.contents);
             
-            // Kiss FM trimite datele sub formă de obiect cu 'nowplaying'
             if(songData && songData.nowplaying) {
-                const song = songData.nowplaying;
-                nowPlaying.innerText = song.artist + " - " + song.song;
+                displayTitle = songData.nowplaying.artist + " - " + songData.nowplaying.song;
             }
         } 
-        // Logica pentru Europa FM
         else if(url.includes("edi.ro")) {
             const proxyUrl = 'https://api.allorigins.win/get?url=';
             const targetUrl = encodeURIComponent('https://www.europafm.ro/wp-content/themes/europafm/api/live.php');
-            
             const response = await fetch(proxyUrl + targetUrl);
             const data = await response.json();
             const songData = JSON.parse(data.contents);
-            nowPlaying.innerText = songData.artist + " - " + songData.title;
+            displayTitle = songData.artist + " - " + songData.title;
         } 
-        else {
-            // Mesajul de rezervă pentru restul posturilor (M Plus, Terra, Jurnal FM)
-            const stationName = stations[currentIndex].name.split('-')[0];
-            nowPlaying.innerText = "Asculți " + stationName + " în direct";
+
+        if (displayTitle) {
+            nowPlaying.innerText = displayTitle;
+            // AICI ESTE CHEIA: Actualizăm widget-ul Android cu melodia reală!
+            updateMediaSession(s, displayTitle);
+        } else {
+            nowPlaying.innerText = "Asculți " + s.name.split('-')[0] + " în direct";
+            updateMediaSession(s); // Revenim la numele postului
         }
     } catch (e) {
-        // Dacă apare orice eroare la citire, revenim la numele postului
-        const stationName = stations[currentIndex].name.split('-')[0];
-        nowPlaying.innerText = "Asculți " + stationName;
+        nowPlaying.innerText = "Asculți " + s.name.split('-')[0];
+        updateMediaSession(s);
     }
 }
 
