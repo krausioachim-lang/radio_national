@@ -239,23 +239,41 @@
 
     async function fetchMetadata(url) {
     try {
-        if(url.includes("edi.ro")) {
-            // Folosim un proxy pentru a evita eroarea CORS
+        // Logica pentru Kiss FM, Magic FM, Rock FM
+        if(url.includes("kissfm.ro") || url.includes("magicfm.ro") || url.includes("rockfm.ro")) {
+            // Folosim proxy-ul pentru a evita blocajele de securitate CORS pe mobil
+            const proxyUrl = 'https://api.allorigins.win/get?url=';
+            const targetUrl = encodeURIComponent('https://www.kissfm.ro/api/nowplaying');
+            
+            const response = await fetch(proxyUrl + targetUrl);
+            const data = await response.json();
+            const songData = JSON.parse(data.contents);
+            
+            // Kiss FM trimite datele sub formă de obiect cu 'nowplaying'
+            if(songData && songData.nowplaying) {
+                const song = songData.nowplaying;
+                nowPlaying.innerText = song.artist + " - " + song.song;
+            }
+        } 
+        // Logica pentru Europa FM
+        else if(url.includes("edi.ro")) {
             const proxyUrl = 'https://api.allorigins.win/get?url=';
             const targetUrl = encodeURIComponent('https://www.europafm.ro/wp-content/themes/europafm/api/live.php');
             
             const response = await fetch(proxyUrl + targetUrl);
             const data = await response.json();
             const songData = JSON.parse(data.contents);
-            
             nowPlaying.innerText = songData.artist + " - " + songData.title;
-        } else {
-            // Pentru posturile locale, afișăm un mesaj dinamic până găsim link-urile de status
+        } 
+        else {
+            // Mesajul de rezervă pentru restul posturilor (M Plus, Terra, Jurnal FM)
             const stationName = stations[currentIndex].name.split('-')[0];
             nowPlaying.innerText = "Asculți " + stationName + " în direct";
         }
     } catch (e) {
-        nowPlaying.innerText = "Radio Streaming Live";
+        // Dacă apare orice eroare la citire, revenim la numele postului
+        const stationName = stations[currentIndex].name.split('-')[0];
+        nowPlaying.innerText = "Asculți " + stationName;
     }
 }
 
