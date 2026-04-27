@@ -227,7 +227,7 @@
         if ('mediaSession' in navigator) {
             navigator.mediaSession.metadata = new MediaMetadata({
                 title: s.name,
-                artist: '',
+                artist: 'Muzica ta preferata',
                 artwork: [{ src: s.logo, sizes: '512x512', type: 'image/png' }]
             });
             navigator.mediaSession.setActionHandler('play', () => { currentAudio.play(); masterPlay.className="fas fa-pause-circle play-btn"; });
@@ -238,18 +238,26 @@
     }
 
     async function fetchMetadata(url) {
-        try {
-            if(url.includes("edi.ro")) {
-                const response = await fetch('https://www.europafm.ro/wp-content/themes/europafm/api/live.php');
-                const data = await response.json();
-                nowPlaying.innerText = data.artist + " - " + data.title;
-            } else {
-                nowPlaying.innerText = "Audio Live Streaming";
-            }
-        } catch (e) {
-            nowPlaying.innerText = "Radio Streaming";
+    try {
+        if(url.includes("edi.ro")) {
+            // Folosim un proxy pentru a evita eroarea CORS
+            const proxyUrl = 'https://api.allorigins.win/get?url=';
+            const targetUrl = encodeURIComponent('https://www.europafm.ro/wp-content/themes/europafm/api/live.php');
+            
+            const response = await fetch(proxyUrl + targetUrl);
+            const data = await response.json();
+            const songData = JSON.parse(data.contents);
+            
+            nowPlaying.innerText = songData.artist + " - " + songData.title;
+        } else {
+            // Pentru posturile locale, afișăm un mesaj dinamic până găsim link-urile de status
+            const stationName = stations[currentIndex].name.split('-')[0];
+            nowPlaying.innerText = "Asculți " + stationName + " în direct";
         }
+    } catch (e) {
+        nowPlaying.innerText = "Radio Streaming Live";
     }
+}
 
     currentAudio.addEventListener('playing', () => {
         setStatus('online');
