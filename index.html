@@ -239,22 +239,23 @@
 
     async function fetchMetadata(url) {
     try {
-        // Exemplu pentru Europa FM (ei au un API public care funcționează)
         if(url.includes("edi.ro")) {
-            const response = await fetch('https://www.europafm.ro/wp-content/themes/europafm/api/live.php');
+            // Folosim un proxy pentru a evita eroarea CORS
+            const proxyUrl = 'https://api.allorigins.win/get?url=';
+            const targetUrl = encodeURIComponent('https://www.europafm.ro/wp-content/themes/europafm/api/live.php');
+            
+            const response = await fetch(proxyUrl + targetUrl);
             const data = await response.json();
-            nowPlaying.innerText = data.artist + " - " + data.title;
-        } 
-        // Dacă este Jurnal FM, ei folosesc uneori un format JSON accesibil
-        else if(url.includes("jurnalfm")) {
-            nowPlaying.innerText = "Jurnal FM - Mereu Aproape";
-        }
-        else {
-            // Dacă nu avem date specifice, afișăm numele postului curent ca titlu
-            nowPlaying.innerText = "Se difuzează în direct...";
+            const songData = JSON.parse(data.contents);
+            
+            nowPlaying.innerText = songData.artist + " - " + songData.title;
+        } else {
+            // Pentru posturile locale, afișăm un mesaj dinamic până găsim link-urile de status
+            const stationName = stations[currentIndex].name.split('-')[0];
+            nowPlaying.innerText = "Asculți " + stationName + " în direct";
         }
     } catch (e) {
-        nowPlaying.innerText = "Radio Streaming";
+        nowPlaying.innerText = "Radio Streaming Live";
     }
 }
 
