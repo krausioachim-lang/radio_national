@@ -34,7 +34,7 @@ self.addEventListener('install', (event) => {
   self.skipWaiting();
 });
 
-// Curățarea cache-ului vechi (v1)
+// Curățarea cache-ului vechi (v2)
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) => {
