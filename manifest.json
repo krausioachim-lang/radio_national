@@ -1,0 +1,35 @@
+{
+  "name": "Radio Piatra Neamț Pro",
+  "short_name": "Radio NT",
+  "description": "Streaming live M Plus, Jurnal FM și Viva FM",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0f0f1a",
+  "theme_color": "#0a0a12",
+  "orientation": "portrait",
+  "categories": ["music", "entertainment"],
+  "icons": [
+    {
+      "src": "img/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Play Radio",
+      "short_name": "Play",
+      "description": "Pornește ultimul post ascultat",
+      "url": "./index.html?action=play",
+      "icons": [{ "src": "img/icon-512.png", "sizes": "512x512" }]
+    },
+    {
+      "name": "Sleep Timer",
+      "short_name": "Sleep",
+      "description": "Setează timpul de oprire",
+      "url": "./index.html?action=sleep",
+      "icons": [{ "src": "img/icon-512.png", "sizes": "512x512" }]
+    }
+  ]
+}
