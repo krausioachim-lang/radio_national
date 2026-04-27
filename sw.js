@@ -1,4 +1,4 @@
-const CACHE_NAME = 'radio-nt-v4'; // Am crescut versiunea la v2 deoarece am adăugat logo-uri noi
+const CACHE_NAME = 'radio-nt-v5'; // Am crescut versiunea la v2 deoarece am adăugat logo-uri noi
 const ASSETS = [
   './',
   './index.html',
