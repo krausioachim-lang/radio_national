@@ -227,7 +227,7 @@
         if ('mediaSession' in navigator) {
             navigator.mediaSession.metadata = new MediaMetadata({
                 title: s.name,
-                artist: 's.name',
+                artist: '',
                 artwork: [{ src: s.logo, sizes: '512x512', type: 'image/png' }]
             });
             navigator.mediaSession.setActionHandler('play', () => { currentAudio.play(); masterPlay.className="fas fa-pause-circle play-btn"; });
