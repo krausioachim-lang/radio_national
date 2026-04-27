@@ -1,4 +1,4 @@
-const CACHE_NAME = 'radio-nt-v6'; // Am crescut versiunea la v6
+const CACHE_NAME = 'radio-nt-v7'; // Am crescut versiunea la v7
 const ASSETS = [
   './',
   './index.html',
@@ -34,7 +34,7 @@ self.addEventListener('install', (event) => {
   self.skipWaiting();
 });
 
-// Curățarea cache-ului vechi (v2)
+// Curățarea cache-ului vechi (v6)
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) => {
